@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Clone Repo') {
       steps {
-        git 'https://github.com/Vennilavan12/Trend.git'
+        git 'https://github.com/deepeshchandnani/trend-app.git'
       }
     }
 
