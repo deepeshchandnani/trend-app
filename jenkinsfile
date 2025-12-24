@@ -1,0 +1,33 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "dockerhubuser/trend-nginx-app"
+  }
+
+  stages {
+    stage('Clone Repo') {
+      steps {
+        git 'https://github.com/Vennilavan12/Trend.git'
+      }
+    }
+
+    stage('Build Image') {
+      steps {
+        sh 'docker build -t $IMAGE_NAME:latest .'
+      }
+    }
+
+    stage('Push Image') {
+      steps {
+        sh 'docker push $IMAGE_NAME:latest'
+      }
+    }
+
+    stage('Deploy to EKS') {
+      steps {
+        sh 'kubectl apply -f k8s/'
+      }
+    }
+  }
+}
