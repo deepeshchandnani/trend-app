@@ -1,65 +1,216 @@
-Trend React Application – Production Ready DevOps Deployment (Nginx Based)
+# Trend Application – Production Ready DevOps Deployment
 
+## Project Overview
 
-This document explains a complete real-world DevOps implementation for deploying a React
-application with pre-built static files using Nginx, Docker, Jenkins, Terraform, and AWS EKS.
+This project demonstrates an **end-to-end production deployment** of a **React-based static application (Trend App)** using **Docker, NGINX, AWS EKS (Kubernetes), Jenkins CI/CD, Terraform, and Prometheus/Grafana monitoring**.
 
+The application is served as **static build files through NGINX**, containerized using Docker, deployed on **AWS EKS**, and fully automated using a **CI/CD pipeline triggered via GitHub webhooks**.
 
-PROJECT OBJECTIVE
+This setup follows **real-world DevOps best practices** by removing unnecessary runtimes (Node.js/npm) from production and using a lightweight, secure web server.
 
+---
 
-Deploy a static React application using Nginx without Node.js or npm in production, following
-industry best practices.
+## Tech Stack Used
 
+- **Frontend**: React (Pre-built Static Files)
+- **Web Server**: NGINX
+- **Containerization**: Docker
+- **Container Registry**: DockerHub
+- **Orchestration**: AWS EKS (Kubernetes)
+- **CI/CD**: GitHub → Jenkins Pipeline
+- **Infrastructure as Code**: Terraform
+- **Monitoring**: Prometheus & Grafana
+- **Cloud Provider**: AWS
+- **Region**: ap-south-1 (Mumbai)
 
-APPLICATION DETAILS
+---
 
-Application Type: React (Static Build)
-Source Repository: https://github.com/Vennilavan12/Trend.git
-Runtime Required: Node.js NOT required
-Web Server: Nginx
-Container Platform: Docker
-Orchestration: Kubernetes (AWS EKS)
-CI/CD Tool: Jenkins
-Monitoring: Prometheus & Grafana
+## Repository Structure
 
+├── static/ or build/ # Pre-built React static files
+├── k8s/
+│ ├── deployment.yaml # Kubernetes Deployment
+│ └── service.yaml # Kubernetes LoadBalancer Service
+├── terraform/
+│ └── main.tf # Infrastructure provisioning
+├── Dockerfile # NGINX-based Docker image
+├── Jenkinsfile # CI/CD pipeline definition
+├── nginx.conf # (Optional) Custom NGINX config
+├── .dockerignore
+├── .gitignore
+└── README.md
 
-IMPORTANT PROJECT CONDITION
+Docker Image Build (Local / Jenkins)
 
-This project already contains build files. Therefore npm and Node.js are not used in production.
-Nginx is used to serve static content.
+The application is served using NGINX, not Node.js.
 
-ARCHITECTURE FLOW
-Developer → GitHub → Jenkins → DockerHub → AWS EKS → LoadBalancer
+Dockerfile (NGINX Based)
+FROM nginx:alpine
+RUN rm -rf /usr/share/nginx/html/*
+COPY . /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
 
-TOOLS USED
-GitHub, Docker, Nginx, Jenkins, Terraform, AWS, Kubernetes, Prometheus, Grafana
-DOCKERIZATION (NGINX BASED)
-
-Dockerfile uses nginx:alpine image and copies static files to /usr/share/nginx/html.
-DOCKER COMMANDS
-
+Build Docker Image
 docker build -t trend-nginx-app .
-docker run -d -p 3000:80 trend-nginx-app
+
+Docker Image Push to DockerHub
+
+Create DockerHub repository
+
+Authenticate Docker
+
+Tag & push image
+
+🔁 These steps are automatically handled via Jenkins pipeline.
+
+Kubernetes Deployment (AWS EKS)
+
+Apply Kubernetes manifests:
+
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+Deployment Details
+
+Replicas: 2
+
+Container: NGINX serving static files
+
+Port: 80
+
+Service Details
+
+Type: LoadBalancer
+
+Public access enabled
+
+Traffic routed to NGINX pods
+
+Application Access
+
+The application is accessible via AWS LoadBalancer DNS:
+
+http://<load-balancer-dns>
 
 
-TERRAFORM
+Mapped internally to:
 
-Terraform provisions EC2, IAM, security groups, and networking resources.
-JENKINS CI/CD
-Pipeline automates Docker build, push, and Kubernetes deployment triggered by GitHub webhook.
-KUBERNETES (EKS)
-Application deployed as Deployment with multiple replicas and exposed using LoadBalancer
-service.
+Container Port: 80
+
+CI/CD Pipeline Explanation
+Source Stage
+
+GitHub Repository
+
+GitHub Webhook triggers pipeline on every push to main branch
+
+Build Stage (Jenkins)
+
+Pipeline stages:
+
+Clone source code
+
+Build Docker image (NGINX based)
+
+Tag Docker image
+
+Push image to DockerHub
+
+Deploy Stage (Jenkins + kubectl)
+
+Jenkins updates kubeconfig
+
+Applies Kubernetes Deployment
+
+Applies Kubernetes Service
+
+Deploys latest image to EKS cluster
+
+CI/CD Pipeline Flow Diagram
+GitHub
+  ↓
+Jenkins Pipeline
+  ↓
+Docker Build (NGINX)
+  ↓
+DockerHub
+  ↓
+AWS EKS (Kubernetes Deployment)
+  ↓
+AWS LoadBalancer
+
+Monitoring & Logs
+Cluster & Application Monitoring
+
+Monitoring is implemented using Prometheus & Grafana.
+
+Metrics monitored:
+
+Node CPU & memory usage
+
+Pod health & restarts
+
+Application availability
+
+Kubernetes Logs
+
+Pod logs via kubectl logs
+
+NGINX access & error logs
+
+Container stdout/stderr
+
+Kubernetes LoadBalancer Details
+
+Service Type: LoadBalancer
+
+Application Port: 80
+
+External Access: Public
+
+LoadBalancer ARN (Captured During Deployment)
+arn:aws:elasticloadbalancing:ap-south-1:xxxx:loadbalancer/app/xxxx
 
 
-MONITORING
+ℹ️ Infrastructure was cleaned up after successful deployment to avoid unnecessary AWS costs.
+ARN and screenshots were captured as deployment proof.
 
-Prometheus and Grafana used for monitoring cluster and application health.
-APPLICATION ACCESS
-Access the application using AWS LoadBalancer DNS.
-LOADBALANCER ARN
-Retrieved from AWS EC2 console.
-FINAL RESULT
-Production-ready, scalable, and monitored React application deployed on AWS EKS using Nginx
-and CI/CD pipeline.
+Screenshots Included
+
+Jenkins Pipeline (Successful Execution)
+
+DockerHub Image Repository
+
+EKS Cluster & Worker Nodes
+
+Kubernetes Services
+
+Prometheus & Grafana Dashboards
+
+Application Running via LoadBalancer URL
+
+Conclusion
+
+This project demonstrates a production-grade DevOps workflow using modern cloud-native technologies and best practices, including:
+
+Static application served via NGINX
+
+Lightweight Docker containers
+
+Automated CI/CD pipeline
+
+Kubernetes-based orchestration
+
+Infrastructure as Code
+
+Centralized monitoring & observability
+
+This setup closely reflects real-world enterprise DevOps deployments.
+
+Author
+Deepesh Chandanani
+
+
+
+
