@@ -1,45 +1,65 @@
-Trend React Application – Complete DevOps CI/CD Deployment
-This document explains a full end-to-end DevOps implementation for deploying a ReactJS
-application using Docker, Jenkins, Terraform, AWS EKS, and Monitoring.
+Trend React Application – Production Ready DevOps Deployment (Nginx Based)
+
+
+This document explains a complete real-world DevOps implementation for deploying a React
+application with pre-built static files using Nginx, Docker, Jenkins, Terraform, and AWS EKS.
+
+
 PROJECT OBJECTIVE
-Deploy a production-ready React application on Kubernetes with automated CI/CD, infrastructure
-as code, and monitoring.
+
+
+Deploy a static React application using Nginx without Node.js or npm in production, following
+industry best practices.
+
+
 APPLICATION DETAILS
-Application Type: ReactJS
-Source Repo: https://github.com/Vennilavan12/Trend.git
-Port: 3000
-Platform: AWS EKS
+
+Application Type: React (Static Build)
+Source Repository: https://github.com/Vennilavan12/Trend.git
+Runtime Required: Node.js NOT required
+Web Server: Nginx
+Container Platform: Docker
+Orchestration: Kubernetes (AWS EKS)
+CI/CD Tool: Jenkins
+Monitoring: Prometheus & Grafana
+
+
+IMPORTANT PROJECT CONDITION
+
+This project already contains build files. Therefore npm and Node.js are not used in production.
+Nginx is used to serve static content.
+
 ARCHITECTURE FLOW
 Developer → GitHub → Jenkins → DockerHub → AWS EKS → LoadBalancer
+
 TOOLS USED
-ReactJS, GitHub, Docker, Jenkins, Terraform, AWS, Kubernetes, Prometheus, Grafana
-STEP 1: CLONE AND TEST APPLICATION
-git clone https://github.com/Vennilavan12/Trend.git
-npm install
-npm start
-STEP 2: DOCKERIZATION
-Dockerfile creates Node-based image exposing port 3000.
-STEP 3: TERRAFORM INFRASTRUCTURE
-Terraform provisions EC2, IAM, networking.
-Commands:
-terraform init
-terraform plan
-terraform apply
-STEP 4: JENKINS SETUP
-Jenkins installed on EC2 with Git, Docker, Kubernetes plugins.
-STEP 5: DOCKERHUB
-Docker image built and pushed to DockerHub.
-STEP 6: KUBERNETES (EKS)
-eksctl create cluster --name trend-cluster
-STEP 7: K8S DEPLOYMENT
-Deployment with replicas and LoadBalancer service.
-STEP 8: CI/CD PIPELINE
-Automated build, push, deploy using Jenkinsfile.
-STEP 9: MONITORING
-Prometheus and Grafana installed via Helm.
-STEP 10: APPLICATION ACCESS
-Access via AWS LoadBalancer URL.
+GitHub, Docker, Nginx, Jenkins, Terraform, AWS, Kubernetes, Prometheus, Grafana
+DOCKERIZATION (NGINX BASED)
+
+Dockerfile uses nginx:alpine image and copies static files to /usr/share/nginx/html.
+DOCKER COMMANDS
+
+docker build -t trend-nginx-app .
+docker run -d -p 3000:80 trend-nginx-app
+
+
+TERRAFORM
+
+Terraform provisions EC2, IAM, security groups, and networking resources.
+JENKINS CI/CD
+Pipeline automates Docker build, push, and Kubernetes deployment triggered by GitHub webhook.
+KUBERNETES (EKS)
+Application deployed as Deployment with multiple replicas and exposed using LoadBalancer
+service.
+
+
+MONITORING
+
+Prometheus and Grafana used for monitoring cluster and application health.
+APPLICATION ACCESS
+Access the application using AWS LoadBalancer DNS.
 LOADBALANCER ARN
 Retrieved from AWS EC2 console.
 FINAL RESULT
-Production-ready React application deployed on AWS EKS with CI/CD and monitoring.
+Production-ready, scalable, and monitored React application deployed on AWS EKS using Nginx
+and CI/CD pipeline.
